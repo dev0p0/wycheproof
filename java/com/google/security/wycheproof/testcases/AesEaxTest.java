@@ -1,6 +1,4 @@
 /**
- * @license
- * Copyright 2016 Google Inc. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,18 +15,23 @@
 // TODO(bleichen):
 //   - So far only 16 byte tags are tested.
 //   - default values: BC uses a 64-bit default for tags.
-//     Tag size is not such a big problem as with AES-GCM, 
+//     Tag size is not such a big problem as with AES-GCM,
 //     since a 64 bit tag gives 64 bit strength for AES-EAX.
 
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.assertEquals;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** AES-EAX tests */
-public class AesEaxTest extends TestCase {
+@RunWith(JUnit4.class)
+public class AesEaxTest {
 
   /** Test vectors */
   public static class EaxTestVector {
@@ -254,6 +257,7 @@ public class AesEaxTest extends TestCase {
             + "e632946e4999be20159977431bef0454"),
   };
 
+  @Test
   public void testEax() throws Exception {
     for (EaxTestVector test : EAX_TEST_VECTOR) {
       Cipher cipher = Cipher.getInstance("AES/EAX/NoPadding");
@@ -264,6 +268,7 @@ public class AesEaxTest extends TestCase {
     }
   }
 
+  @Test
   public void testLateUpdateAAD() throws Exception {
     for (EaxTestVector test : EAX_TEST_VECTOR) {
       Cipher cipher = Cipher.getInstance("AES/EAX/NoPadding");

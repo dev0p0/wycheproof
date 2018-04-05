@@ -1,6 +1,4 @@
 /**
- * @license
- * Copyright 2016 Google Inc. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,8 +16,11 @@
 //   E.g. public keys can specify the order, base points etc.
 //   We might want to check how well these parameters are verified when parsing
 //   a public key.
-
 package com.google.security.wycheproof;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -34,10 +35,13 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** EC tests */
-public class EcKeyTest extends TestCase {
+@RunWith(JUnit4.class)
+public class EcKeyTest {
   /**
    * Encodings of public keys with invalid parameters. There are multiple places where a provider
    * can validate a public key: some parameters are typically validated by the KeyFactory, more
@@ -127,6 +131,7 @@ public class EcKeyTest extends TestCase {
         + "8c0b49bbb85c3303ddb1553c3b761c2caacca71606ba9ebac8",
   };
 
+  @Test
   public void testEncodedPublicKey() throws Exception {
     KeyFactory kf = KeyFactory.getInstance("EC");
     for (String encodedHex : EC_INVALID_PUBLIC_KEYS) {
@@ -142,6 +147,7 @@ public class EcKeyTest extends TestCase {
     }
   }
 
+  @Test
   public void testEncodedPrivateKey() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
     keyGen.initialize(EcUtil.getNistP256Params());
@@ -185,6 +191,7 @@ public class EcKeyTest extends TestCase {
     // TODO(bleichen): use RandomUtil
   }
 
+  @Test
   public void testKeyGenerationAll() throws Exception {
     testKeyGeneration(EcUtil.getNistP224Params(), true);
     testKeyGeneration(EcUtil.getNistP256Params(), true);
@@ -195,20 +202,20 @@ public class EcKeyTest extends TestCase {
   }
 
   /**
-   * Checks that the default key size for ECDSA is up to date.
-   * The test uses NIST SP 800-57 part1 revision 4, Table 2, page 53
-   * http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf
-   * for the minimal key size of EC keys.
-   * Nist recommends a minimal security strength of 112 bits for the time until 2030.
-   * To achieve this security strength EC keys of at least 224 bits are required.
+   * Checks that the default key size for ECDSA is up to date. The test uses NIST SP 800-57 part1
+   * revision 4, Table 2, page 53
+   * http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf for the minimal
+   * key size of EC keys. Nist recommends a minimal security strength of 112 bits for the time until
+   * 2030. To achieve this security strength EC keys of at least 224 bits are required.
    */
+  @Test
   public void testDefaultKeyGeneration() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("EC");
     KeyPair keyPair = keyGen.generateKeyPair();
     ECPublicKey pub = (ECPublicKey) keyPair.getPublic();
     int keySize = EcUtil.fieldSizeInBits(pub.getParams().getCurve());
     if (keySize < 224) {
-      fail("Expected a default key size of at least 224 bits. Size of generate key is " + keySize); 
+      fail("Expected a default key size of at least 224 bits. Size of generate key is " + keySize);
     }
   }
 
@@ -216,6 +223,7 @@ public class EcKeyTest extends TestCase {
    * Tries to generate a public key with a point at infinity. Public keys with a point at infinity
    * should be rejected to prevent subgroup confinement attacks.
    */
+  @Test
   public void testPublicKeyAtInfinity() throws Exception {
     ECParameterSpec ecSpec = EcUtil.getNistP256Params();
     try {

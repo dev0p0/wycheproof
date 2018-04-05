@@ -1,6 +1,4 @@
 /**
- * @license
- * Copyright 2016 Google Inc. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.security.wycheproof;
 
 import com.google.security.wycheproof.WycheproofRunner.Fast;
@@ -24,9 +21,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite.SuiteClasses;
 
-/**
- * BouncyCastleTest excludes {@code @SlowTest} tests.
- */
+/** BouncyCastleTest excludes {@code @SlowTest} tests. */
 @RunWith(WycheproofRunner.class)
 @SuiteClasses({
   AesEaxTest.class,
@@ -41,6 +36,11 @@ import org.junit.runners.Suite.SuiteClasses;
   EcdhTest.class,
   EcdsaTest.class,
   EciesTest.class,
+  JsonAeadTest.class,
+  JsonCipherTest.class,
+  JsonEcdhTest.class,
+  JsonSignatureTest.class,
+  MessageDigestTest.class,
   RsaEncryptionTest.class,
   RsaKeyTest.class,
   RsaSignatureTest.class,

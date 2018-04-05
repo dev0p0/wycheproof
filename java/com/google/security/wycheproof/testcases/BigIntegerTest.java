@@ -1,6 +1,4 @@
 /**
- * @license
- * Copyright 2016 Google Inc. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,18 +11,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.fail;
+
 import java.math.BigInteger;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
  * Test BigInteger class.
  *
  * <p>This unit tests focuses on checking security relevant properties.
  */
-public class BigIntegerTest extends TestCase {
+@RunWith(JUnit4.class)
+public class BigIntegerTest {
   public static final BigInteger[] NONPRIMES =
       new BigInteger[] {
         // small non prime integers
@@ -50,17 +52,12 @@ public class BigIntegerTest extends TestCase {
         new BigInteger("164280218643672633986221"),
         new BigInteger("318665857834031151167461"),
         new BigInteger("7395010240794120709381"),
-        new BigInteger("164280218643672633986221"),
-        new BigInteger("318665857834031151167461"),
         new BigInteger("2995741773170734841812261"),
         new BigInteger("667636712015520329618581"),
         new BigInteger("3317044064679887385961981"),
         new BigInteger("3110269097300703345712981"),
         new BigInteger("552727880697763694556181"),
-        new BigInteger("360681321802296925566181"),
-        new BigInteger("7395010240794120709381"),
         new BigInteger("3404730287403079539471001"),
-        new BigInteger("164280218643672633986221"),
         // Richarg G.E. Pinch, "Some primality testing algorithms"
         // Some composites that passed Maple V's primality test.
         new BigInteger("10710604680091"),
@@ -449,6 +446,7 @@ public class BigIntegerTest extends TestCase {
    * Lucas test. This is similar to the Baillie-PSW test
    * https://en.wikipedia.org/wiki/Baillie%E2%80%93PSW_primality_test
    */
+  @Test
   public void testIsProbablePrime() throws Exception {
     // The probability that a non-prime passes should be at most 1-2^{-certainty}.
     int certainty = 80;

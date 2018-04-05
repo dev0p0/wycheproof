@@ -1,6 +1,4 @@
 /**
- * @license
- * Copyright 2016 Google Inc. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,8 +11,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.security.wycheproof;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,10 +27,13 @@ import javax.crypto.Cipher;
 import javax.crypto.CipherOutputStream;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** CipherOutputStream tests */
-public class CipherOutputStreamTest extends TestCase {
+@RunWith(JUnit4.class)
+public class CipherOutputStreamTest {
   static final SecureRandom rand = new SecureRandom();
 
   static byte[] randomBytes(int size) {
@@ -52,7 +55,7 @@ public class CipherOutputStreamTest extends TestCase {
   }
 
   /** Test vectors */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public static class TestVector {
     public String algorithm;
     public SecretKeySpec key;
@@ -99,7 +102,7 @@ public class CipherOutputStreamTest extends TestCase {
     return result;
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testEncrypt(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -113,7 +116,7 @@ public class CipherOutputStreamTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testDecrypt(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -127,7 +130,7 @@ public class CipherOutputStreamTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testCorruptDecrypt(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -158,7 +161,7 @@ public class CipherOutputStreamTest extends TestCase {
     }
   }
 
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
   public void testCorruptDecryptEmpty(Iterable<TestVector> tests) throws Exception {
     for (TestVector t : tests) {
       Cipher cipher = Cipher.getInstance(t.algorithm);
@@ -184,6 +187,7 @@ public class CipherOutputStreamTest extends TestCase {
     }
   }
 
+  @Test
   public void testAesGcm() throws Exception {
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
@@ -202,6 +206,7 @@ public class CipherOutputStreamTest extends TestCase {
    * ciphertexts. Because of this we test empty plaintext separately to distinguish behaviour
    * considered acceptable by Oracle from other behaviour.
    */
+  @Test
   public void testEmptyPlaintext() throws Exception {
     final int[] keySizes = {16, 32};
     final int[] ivSizes = {12};
@@ -216,7 +221,8 @@ public class CipherOutputStreamTest extends TestCase {
   }
 
   /** Tests CipherOutputStream with AES-EAX if AES-EAS is supported by the provider. */
-  @SuppressWarnings("InsecureCipherMode")
+  @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testAesEax() throws Exception {
     final String algorithm = "AES/EAX/NoPadding";
     final int[] keySizes = {16, 32};

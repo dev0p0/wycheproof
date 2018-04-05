@@ -1,6 +1,4 @@
 /**
- * @license
- * Copyright 2016 Google Inc. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,9 +11,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.security.wycheproof;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import com.google.security.wycheproof.WycheproofRunner.NoPresubmitTest;
 import com.google.security.wycheproof.WycheproofRunner.ProviderType;
 import com.google.security.wycheproof.WycheproofRunner.SlowTest;
 import java.math.BigInteger;
@@ -29,21 +31,23 @@ import javax.crypto.KeyAgreement;
 import javax.crypto.interfaces.DHPrivateKey;
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.DHPublicKeySpec;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
  * Testing Diffie-Hellman key agreement.
  *
- * <p>Subgroup confinment attacks:
- * The papers by van Oorshot and Wiener rsp. Lim and Lee show that Diffie-Hellman keys can
- * be found much faster if the short exponents are used and if the multiplicative group modulo p
- * contains small subgroups. In particular an attacker can try to send a public key that is an
- * element of a small subgroup. If the receiver does not check for such elements then may be
- * possible to find the private key modulo the order of the small subgroup.
- * Several countermeasures against such attacks have been proposed: For example IKE uses
- * fields of order p where p is a safe prime (i.e. q=(p-1)/2), hence the only elements of small
- * order are 1 and p-1.
- * NIST SP 800-56A rev. 2, Section 5.5.1.1 only requires that the size of the subgroup generated
+ * <p>Subgroup confinment attacks: The papers by van Oorshot and Wiener rsp. Lim and Lee show that
+ * Diffie-Hellman keys can be found much faster if the short exponents are used and if the
+ * multiplicative group modulo p contains small subgroups. In particular an attacker can try to send
+ * a public key that is an element of a small subgroup. If the receiver does not check for such
+ * elements then may be possible to find the private key modulo the order of the small subgroup.
+ * Several countermeasures against such attacks have been proposed: For example IKE uses fields of
+ * order p where p is a safe prime (i.e. q=(p-1)/2), hence the only elements of small order are 1
+ * and p-1.
+ *
+ * <p>NIST SP 800-56A rev. 2, Section 5.5.1.1 only requires that the size of the subgroup generated
  * by the generator g is big enough to prevent the baby-step giant-step algorithm. I.e. for 80-bit
  * security p must be at least 1024 bits long and the prime q must be at least 160 bits long. A 2048
  * bit prime p and a 224 bit prime q are sufficient for 112 bit security. To avoid subgroup
@@ -51,14 +55,15 @@ import junit.framework.TestCase;
  * key y satisfies the conditions 2 <= y <= p-2 and y^q mod p == 1 (Section 5.6.2.3.1). Further,
  * after generating the shared secret z = y_a ^ x_b mod p each party should check that z != 1. RFC
  * 2785 contains similar recommendations.
- * The public key validation described by NIST requires that the order q of the generator g
- * is known to the verifier. Unfortunately, the order q is missing in PKCS #3. PKCS #3 describes
- * the Diffie-Hellman parameters only by the values p, g and optionally the key size in bits.
+ *
+ * <p>The public key validation described by NIST requires that the order q of the generator g is
+ * known to the verifier. Unfortunately, the order q is missing in PKCS #3. PKCS #3 describes the
+ * Diffie-Hellman parameters only by the values p, g and optionally the key size in bits.
  *
  * <p>The class DHParameterSpec that defines the Diffie-Hellman parameters in JCE contains the same
- * values as PKCS#3. In particular, it does not contain the order of the subgroup q.
- * Moreover, the SUN provider uses the minimal sizes specified by NIST for q.
- * Essentially the provider reuses the parameters for DSA.
+ * values as PKCS#3. In particular, it does not contain the order of the subgroup q. Moreover, the
+ * SUN provider uses the minimal sizes specified by NIST for q. Essentially the provider reuses the
+ * parameters for DSA.
  *
  * <p>Therefore, there is no guarantee that an implementation of Diffie-Hellman is secure against
  * subgroup confinement attacks. Without a key validation it is insecure to use the key-pair
@@ -88,14 +93,13 @@ import junit.framework.TestCase;
  *
  * <p>D. Adrian et al. "Imperfect Forward Secrecy: How Diffie-Hellman Fails in Practice"
  * https://weakdh.org/imperfect-forward-secrecy-ccs15.pdf
- * A good analysis of various DH implementations.
- * Some misconfigurations pointed out in the paper are: p is composite, p-1 contains no large
- * prime factor, q is used instead of the generator g.
+ * A good analysis of various DH implementations. Some misconfigurations pointed out in the paper
+ * are: p is composite, p-1 contains no large prime factor, q is used instead of the generator g.
  *
  * <p>Sources that might be used for additional tests:
  *
- * CVE-2015-3193: The Montgomery squaring implementation in crypto/bn/asm/x86_64-mont5.pl
- * in OpenSSL 1.0.2 before 1.0.2e on the x86_64 platform, as used by the BN_mod_exp function,
+ * <p>CVE-2015-3193: The Montgomery squaring implementation in crypto/bn/asm/x86_64-mont5.pl in
+ * OpenSSL 1.0.2 before 1.0.2e on the x86_64 platform, as used by the BN_mod_exp function,
  * mishandles carry propagation
  * https://blog.fuzzing-project.org/31-Fuzzing-Math-miscalculations-in-OpenSSLs-BN_mod_exp-CVE-2015-3193.html
  *
@@ -132,13 +136,14 @@ import junit.framework.TestCase;
  * <p>CVE-2015-2419: Random generation of the prime p allows Pohlig-Hellman and probably other
  * stuff.
  *
- * <p> J. Fried et al. "A kilobit hidden SNFS discrete logarithm computation".
+ * <p>J. Fried et al. "A kilobit hidden SNFS discrete logarithm computation".
  * http://eprint.iacr.org/2016/961.pdf
  * Some crypto libraries use fields that can be broken with the SNFS.
  *
  * @author bleichen@google.com (Daniel Bleichenbacher)
  */
-public class DhTest extends TestCase {
+@RunWith(JUnit4.class)
+public class DhTest {
   public DHParameterSpec ike1536() {
     final BigInteger p =
         new BigInteger(
@@ -192,6 +197,8 @@ public class DhTest extends TestCase {
   }
 
   /** Check that key agreement using DH works. */
+  @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testDh() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
     DHParameterSpec dhparams = ike2048();
@@ -211,10 +218,10 @@ public class DhTest extends TestCase {
   }
 
   /**
-   * Returns the product of primes that can be found by a simple variant of Pollard-rho.
-   * The result should contain all prime factors of n smaller than 10^8.
-   * This method is heuristic, since it could in principle find large prime factors too.
-   * However, for a random 160-bit prime q the probability of this should be less than 2^{-100}.
+   * Returns the product of primes that can be found by a simple variant of Pollard-rho. The result
+   * should contain all prime factors of n smaller than 10^8. This method is heuristic, since it
+   * could in principle find large prime factors too. However, for a random 160-bit prime q the
+   * probability of this should be less than 2^{-100}.
    */
   private BigInteger smoothDivisor(BigInteger n) {
     // By examination we verified that for every prime p < 10^8
@@ -231,7 +238,7 @@ public class DhTest extends TestCase {
       v = v.multiply(v).add(BigInteger.ONE).mod(n);
       // This implementation is only looking for the product of small primes.
       // Therefore, instead of continuously computing gcds of v-u and n, it is sufficient
-      // and more efficient to compute the product of of v-u for all v and compute the gcd
+      // and more efficient to compute the product of v-u for all v and compute the gcd
       // at the end.
       prod = prod.multiply(v.subtract(u).abs()).mod(n);
     }
@@ -246,13 +253,12 @@ public class DhTest extends TestCase {
     }
   }
 
-  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
-  public void testKeyPair(KeyPair keyPair, int expectedKeySize) throws Exception {
+  private void testKeyPair(KeyPair keyPair, int expectedKeySize) throws Exception {
     DHPrivateKey priv = (DHPrivateKey) keyPair.getPrivate();
     BigInteger p = priv.getParams().getP();
     BigInteger g = priv.getParams().getG();
     int keySize = p.bitLength();
-    assertEquals("wrong key size", keySize, expectedKeySize);
+    assertEquals("wrong key size", expectedKeySize, keySize);
 
     // Checks the key size of the private key.
     // NIST SP 800-56A requires that x is in the range (1, q-1).
@@ -276,7 +282,7 @@ public class DhTest extends TestCase {
     assertTrue(p.isProbablePrime(4));
     // The order of g should be a large prime divisor q of p-1.
     // (see e.g. NIST SP 800-56A, section 5.5.1.1.)
-    // If the order of g is composite then the the Decision Diffie Hellman assumption is
+    // If the order of g is composite then the Decision Diffie Hellman assumption is
     // not satisfied for the group generated by g. Moreover, attacks using Pohlig-Hellman
     // might be feasible.
     // A good way to achieve these requirements is to select a safe prime p (i.e. a prime
@@ -289,7 +295,7 @@ public class DhTest extends TestCase {
     // the order of g.
     boolean isSafePrime = p.shiftRight(1).isProbablePrime(4);
     System.out.println("p is a safe prime:" + isSafePrime);
-    BigInteger r;  // p-1 divided by small prime factors.
+    BigInteger r; // p-1 divided by small prime factors.
     if (isSafePrime) {
       r = p.shiftRight(1);
     } else {
@@ -297,8 +303,8 @@ public class DhTest extends TestCase {
       r = p1.divide(smoothDivisor(p1));
     }
     System.out.println("r=" + r.toString(16));
-    assertEquals("g likely does not generate a prime oder subgroup", BigInteger.ONE,
-                 g.modPow(r, p));
+    assertEquals(
+        "g likely does not generate a prime oder subgroup", BigInteger.ONE, g.modPow(r, p));
 
     // Checks that there are not too many short prime factors.
     // I.e., subgroup confinment attacks can find at least keySize - r.bitLength() bits of the key.
@@ -317,9 +323,12 @@ public class DhTest extends TestCase {
   /**
    * Tests Diffie-Hellman key pair generation.
    *
-   * <p> This is a slow test since some providers (e.g. BouncyCastle) generate new safe primes
-   * for each new key.
+   * <p>This is a slow test since some providers (e.g. BouncyCastle) generate new safe primes for
+   * each new key.
    */
+  @SuppressWarnings("InsecureCryptoUsage")
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
   public void testKeyPairGenerator() throws Exception {
     int keySize = 1024;
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
@@ -328,7 +337,40 @@ public class DhTest extends TestCase {
     testKeyPair(keyPair, keySize);
   }
 
+  /**
+   * Tests the default Diffie-Hellman key pair generation.
+   *
+   * <p>This test uses NIST SP 800-57 part1, revision 4
+   * http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r4.pdf . Table 2 on page
+   * 53 recommends 2048 bits as the minimal key length for Diffie-Hellman for new keys that expire
+   * before the year 2030.
+   *
+   * <p>Note that JCE documentation is outdated. According to
+   * https://docs.oracle.com/javase/7/docs/api/java/security/KeyPairGenerator.html an implementation
+   * of the Java platform is only required to support 1024 bit keys.
+   */
+  @SlowTest(providers = {ProviderType.BOUNCY_CASTLE, ProviderType.SPONGY_CASTLE})
+  @Test
+  public void testDefaultKeyPairGenerator() throws Exception {
+    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
+    KeyPair keyPair;
+    try {
+      keyPair = keyGen.generateKeyPair();
+    } catch (Exception ex) {
+      // When a provider decides not to implement a default key size then this is still better than
+      // implementing a default that is out of date. Hence the test should not fail in this case.
+      System.out.println("Cannot generate a DH key without initialize: " + ex.getMessage());
+      return;
+    }
+    DHPrivateKey priv = (DHPrivateKey) keyPair.getPrivate();
+    int keySize = priv.getParams().getP().bitLength();
+    assertTrue("Default key size for DH is too small. Key size = " + keySize, keySize >= 2048);
+    testKeyPair(keyPair, keySize);
+  }
+
   /** This test tries a key agreement with keys using distinct parameters. */
+  @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testDHDistinctParameters() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
     keyGen.initialize(ike1536());
@@ -354,11 +396,15 @@ public class DhTest extends TestCase {
    * public keys in an ephemeral-ephemeral key agreement scheme then it may be possible to coerce
    * both parties into computing the same predictable shared key.
    *
-   * <p> Note: the test is quite whimsical. If the prime p is not a safe prime then the provider
+   * <p>Note: the test is quite whimsical. If the prime p is not a safe prime then the provider
    * itself cannot prevent all small-subgroup attacks because of the missing parameter q in the
    * Diffie-Hellman parameters. Implementations must add additional countermeasures such as the ones
    * proposed in RFC 2785.
+   *
+   * <p>CVE-2016-1000346: BouncyCastle before v.1.56 did not validate the other parties public key.
    */
+  @SuppressWarnings("InsecureCryptoUsage")
+  @Test
   public void testSubgroupConfinement() throws Exception {
     KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DH");
     DHParameterSpec params = ike2048();

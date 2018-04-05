@@ -1,6 +1,4 @@
 /**
- * @license
- * Copyright 2013 Google Inc. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,7 +11,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.security.wycheproof;
 
 import java.lang.annotation.ElementType;
@@ -29,16 +26,19 @@ import org.junit.runners.model.InitializationError;
 import org.junit.runners.model.RunnerBuilder;
 
 /**
- * <p>A custom JUnit4 runner that, with annotations, allows choosing tests to run on a specific
+ * A custom JUnit4 runner that, with annotations, allows choosing tests to run on a specific
  * provider. To use it, annotate a runner class with {@code RunWith(WycheproofRunner.class)}, and
  * {@code SuiteClasses({AesGcmTest.class, ...})}. When you run this class, it will run all the tests
  * in all the suite classes.
  *
  * <p>To exclude certain tests, a runner class should be annotated with {@code @Provider} which
  * indicates the target provider. Test exclusion is defined as follows:
- * <ul>@Fast test runners skip @SlowTest test functions.
- * <ul>@Presubmit test runners skip @NoPresubmitTest test functions.
- * <ul>All test runners skip @ExcludedTest test functions.
+ *
+ * <ul>
+ *   <li>@Fast test runners skip @SlowTest test functions.
+ *   <li>@Presubmit test runners skip @NoPresubmitTest test functions.
+ *   <li>All test runners skip @ExcludedTest test functions.
+ * </ul>
  *
  * @author thaidn@google.com (Thai Duong)
  */
@@ -100,10 +100,8 @@ public class WycheproofRunner extends Suite {
   /**
    * Tests that should be excluded from presubmit checks on specific providers.
    *
-   * <p>Usage: @NoPresubmitTest(
-   *   providers = {ProviderType.BOUNCY_CASTLE, ...},
-   *   bugs = {"b/123456789"}
-   * )
+   * <p>Usage: @NoPresubmitTest( providers = {ProviderType.BOUNCY_CASTLE, ...}, bugs =
+   * {"b/123456789"} )
    */
   @Retention(RetentionPolicy.RUNTIME)
   @Target({ElementType.METHOD, ElementType.FIELD})
@@ -124,13 +122,11 @@ public class WycheproofRunner extends Suite {
   @Target({ElementType.METHOD})
   public @interface ExcludedTest {
     ProviderType[] providers();
+
     String comment();
   }
 
-  /**
-   * Custom filter to exclude certain test functions.
-   *
-   */
+  /** Custom filter to exclude certain test functions. */
   public static class ExcludeTestFilter extends Filter {
 
     Class<?> runnerClass;

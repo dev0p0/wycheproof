@@ -1,6 +1,4 @@
 /**
- * @license
- * Copyright 2016 Google Inc. All rights reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -13,18 +11,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.google.security.wycheproof;
 
 import java.security.Provider;
 import java.security.Security;
 import java.util.TreeSet;
-import junit.framework.TestCase;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /** Not a true test: reports information about the provider. */
-public class BasicTest extends TestCase {
+@RunWith(JUnit4.class)
+public class BasicTest {
 
   /** List all algorithms known to the security manager. */
+  @Test
   public void testListAllAlgorithms() {
     for (Provider p : Security.getProviders()) {
       System.out.println();
